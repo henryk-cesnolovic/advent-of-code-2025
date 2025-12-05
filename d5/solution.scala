@@ -9,7 +9,7 @@ def time[T](block: => T): T = {
 }
 
 @main
-def d1() =
+def d5() =
   val data =
     Source.fromFile("data.txt").getLines().to(List)
   val dataTest =
@@ -66,8 +66,7 @@ def solution2(data: List[String]): Long =
     position.state.match {
       case 0 =>
         State(
-          if (acc.numOfRangesInMerge == 0L) position.value
-          else acc.mergedRangeStart,
+          if (acc.numOfRangesInMerge == 0L) position.value else acc.mergedRangeStart,
           acc.numOfRangesInMerge + 1,
           acc.sumOfIngridients
         )
@@ -75,9 +74,7 @@ def solution2(data: List[String]): Long =
         State(
           acc.mergedRangeStart,
           acc.numOfRangesInMerge - 1,
-          if (acc.numOfRangesInMerge - 1 == 0)
-            acc.sumOfIngridients + position.value - acc.mergedRangeStart + 1
-          else acc.sumOfIngridients
+          if (acc.numOfRangesInMerge - 1 == 0) acc.sumOfIngridients + position.value - acc.mergedRangeStart + 1 else acc.sumOfIngridients
         )
     }
   }
