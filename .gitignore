@@ -1,0 +1,10 @@
+# Ignore build / IDE tooling directories
+.bsp/
+.metals/
+.scala-build/
+
+# Ignore Scalafmt config
+.scalafmt.conf
+
+# Ignore all .txt files inside any folder
+**/*.txt
