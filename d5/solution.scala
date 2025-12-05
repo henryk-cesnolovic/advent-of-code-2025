@@ -49,24 +49,24 @@ def solution2(data: List[String]): Long =
   val ranges =
     twoParts._1.map(_.split("-")).map(row => (row(0).toLong, row(1).toLong))
 
-  case class Position(value: Long, state: Int)
+  case class Point(value: Long, state: Int) // 0 - start, 1 - end
   val sorted = ranges
     .map { range =>
-      Array(Position(range._1, 0), Position(range._2, 1))
+      Array(Point(range._1, 0), Point(range._2, 1))
     }
     .flatten
-    .sortBy { case Position(v, s) => (v, s) }
+    .sortBy { case Point(v, s) => (v, s) }
 
   case class State(
       mergedRangeStart: Long,
       numOfRangesInMerge: Int,
       sumOfIngridients: Long
   )
-  val result = sorted.foldLeft(State(0L, 0, 0L)) { case (acc, position) =>
-    position.state.match {
+  val result = sorted.foldLeft(State(0L, 0, 0L)) { case (acc, point) =>
+    point.state.match {
       case 0 =>
         State(
-          if (acc.numOfRangesInMerge == 0L) position.value else acc.mergedRangeStart,
+          if (acc.numOfRangesInMerge == 0L) point.value else acc.mergedRangeStart,
           acc.numOfRangesInMerge + 1,
           acc.sumOfIngridients
         )
@@ -74,7 +74,7 @@ def solution2(data: List[String]): Long =
         State(
           acc.mergedRangeStart,
           acc.numOfRangesInMerge - 1,
-          if (acc.numOfRangesInMerge - 1 == 0) acc.sumOfIngridients + position.value - acc.mergedRangeStart + 1 else acc.sumOfIngridients
+          if (acc.numOfRangesInMerge - 1 == 0) acc.sumOfIngridients + point.value - acc.mergedRangeStart + 1 else acc.sumOfIngridients
         )
     }
   }
