@@ -48,15 +48,15 @@ object Day6:
       .reverse
 
     case class ResultState(index: Int, position: Int, totalSum: Long)
-    val dataReversed = data.dropRight(1).reverse
+    val dataWithoutSigns = data.dropRight(1)
     val result = actions.foldLeft(ResultState(0, 0, 0L)) { case (acc, sign) =>
       val calculatedNumbers = (0 to columnSizes(acc.index) - 1)
         .map { pos =>
-          (0 to dataReversed.size - 1).foldLeft("") { case (accN, i) =>
-            accN + dataReversed(i)(acc.position + pos)
+          (0 to dataWithoutSigns.size - 1).foldLeft("") { case (accN, i) =>
+            accN + dataWithoutSigns(i)(acc.position + pos)
           }
         }
-        .map(_.reverse.trim.toLong)
+        .map(_.trim.toLong)
 
       val sum = if (sign == "*") calculatedNumbers.reduce(_ * _) else calculatedNumbers.reduce(_ + _)
 
