@@ -16,10 +16,10 @@ object Day6:
     time(solution2(data))
 
   def solution1(data: List[String]): Long =
-    val splited = data.map(_.trim.split("\\s+").toList)
+    val split = data.map(_.trim.split("\\s+").toList)
 
-    val numbers = splited.dropRight(1).map(row => row.map(num => num.toLong))
-    val actions = splited.last
+    val numbers = split.dropRight(1).map(row => row.map(num => num.toLong))
+    val actions = split.last
 
     case class State(index: Int, totalSum: Long)
     val result = actions.foldLeft(State(0, 0L)) { case (acc, sign) =>
@@ -31,10 +31,10 @@ object Day6:
     result.totalSum
 
   def solution2(data: List[String]): Long =
-    val splited = data.map(_.trim.split("\\s+").toList)
+    val split = data.map(_.trim.split("\\s+").toList)
 
-    val numbers = splited.dropRight(1)
-    val actions = splited.last
+    val numbers = split.dropRight(1)
+    val actions = split.last
 
     case class ColumnState(index: Int, columnSizes: List[Int])
     val columnSizes = actions
