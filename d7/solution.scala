@@ -36,40 +36,33 @@ object Day7:
     val sPosition = data.head.indexOf("S")
     val maxPosition = data.head.length()
 
-    case class AllBeamsState(allBeamPositions: List[Set[Int]])
-    case class LineState(newBeamsPositions: Set[Int])
-    val allBeams = data.tail
-      .foldLeft(AllBeamsState(List(Set(sPosition)))) { case (allBeamsStateAcc, line) =>
-        val lineState = allBeamsStateAcc.allBeamPositions.head.foldLeft(LineState(Set())) { case (lineStateAcc, beamPosition) =>
+    case class ResultState(beamPositionsWithTimelines: Map[Int, Long])
+    case class LineState(newBeamsPositions: Map[Int, Long])
+    data.tail
+      .foldLeft(ResultState(Map(sPosition -> 1))) { case (resultAcc, line) =>
+        val lineState = resultAcc.beamPositionsWithTimelines.keys.foldLeft(LineState(Map())) { case (lineStateAcc, beamPosition) =>
+          val beamTimelines = resultAcc.beamPositionsWithTimelines(beamPosition)
           if (line(beamPosition) == '^')
             val newPositions = Set(beamPosition - 1, beamPosition + 1).filterNot(p => p < 0 || p > line.size - 1)
-            LineState(lineStateAcc.newBeamsPositions ++ newPositions)
-          else LineState(lineStateAcc.newBeamsPositions ++ Set(beamPosition))
+            val newPositionsWithTimelines = newPositions.map { newPosition =>
+              val timelinesForNewPosition = lineStateAcc.newBeamsPositions
+                .get(newPosition)
+                .map(_ + beamTimelines)
+                .getOrElse(beamTimelines)
+              newPosition -> timelinesForNewPosition
+            }.toMap
+            LineState(lineStateAcc.newBeamsPositions ++ newPositionsWithTimelines)
+          else
+            val newPositionWithTimeLine = Map(
+              beamPosition -> lineStateAcc.newBeamsPositions
+                .get(beamPosition)
+                .map(_ + beamTimelines)
+                .getOrElse(beamTimelines)
+            )
+            LineState(lineStateAcc.newBeamsPositions ++ newPositionWithTimeLine)
         }
-        AllBeamsState(lineState.newBeamsPositions +: allBeamsStateAcc.allBeamPositions)
+        ResultState(lineState.newBeamsPositions)
       }
-
-    @scala.annotation.tailrec
-    def calcPaths(leftBeams: List[Set[Int]], accBeamsPaths: Map[Int, Long], lineIndex: Int): Long = // beams, numOfPaths
-      leftBeams match {
-        case Nil => accBeamsPaths.values.head
-        case current :: tail =>
-          val newBeamsPaths = accBeamsPaths.keys.foldLeft(Map[Int, Long]()) { case (acc, beam) =>
-            val numOfPathsForBeam = accBeamsPaths(beam)
-
-            acc ++
-              (if (current.contains(beam))
-                 acc ++ Map(beam -> acc.get(beam).map(_ + numOfPathsForBeam).getOrElse(numOfPathsForBeam))
-               else Map()) ++
-              (if (beam - 1 > -1 && data(lineIndex)(beam - 1) == '^')
-                 Map(beam - 1 -> acc.get(beam - 1).map(_ + numOfPathsForBeam).getOrElse(numOfPathsForBeam))
-               else Map()) ++
-              (if (beam + 1 < maxPosition && data(lineIndex)(beam + 1) == '^')
-                 Map(beam + 1 -> acc.get(beam + 1).map(_ + numOfPathsForBeam).getOrElse(numOfPathsForBeam))
-               else Map())
-
-          }
-          calcPaths(tail, newBeamsPaths, lineIndex - 1)
-      }
-
-    calcPaths(allBeams.allBeamPositions.tail, allBeams.allBeamPositions.head.map(_ -> 1L).toMap, data.size - 1)
+      .beamPositionsWithTimelines
+      .values
+      .sum
