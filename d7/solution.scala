@@ -37,7 +37,7 @@ object Day7:
     val maxPosition = data.head.length()
 
     case class ResultState(beamPositionsWithTimelines: Map[Int, Long])
-    case class LineState(newBeamsPositions: Map[Int, Long])
+    case class LineState(newBeamsPositionsWithTimelines: Map[Int, Long])
     data.tail
       .foldLeft(ResultState(Map(sPosition -> 1))) { case (resultAcc, line) =>
         val lineState = resultAcc.beamPositionsWithTimelines.keys.foldLeft(LineState(Map())) { case (lineStateAcc, beamPosition) =>
@@ -45,23 +45,23 @@ object Day7:
           if (line(beamPosition) == '^')
             val newPositions = Set(beamPosition - 1, beamPosition + 1).filterNot(p => p < 0 || p > line.size - 1)
             val newPositionsWithTimelines = newPositions.map { newPosition =>
-              val timelinesForNewPosition = lineStateAcc.newBeamsPositions
+              val timelinesForNewPosition = lineStateAcc.newBeamsPositionsWithTimelines
                 .get(newPosition)
                 .map(_ + beamTimelines)
                 .getOrElse(beamTimelines)
               newPosition -> timelinesForNewPosition
             }.toMap
-            LineState(lineStateAcc.newBeamsPositions ++ newPositionsWithTimelines)
+            LineState(lineStateAcc.newBeamsPositionsWithTimelines ++ newPositionsWithTimelines)
           else
             val newPositionWithTimeLine = Map(
-              beamPosition -> lineStateAcc.newBeamsPositions
+              beamPosition -> lineStateAcc.newBeamsPositionsWithTimelines
                 .get(beamPosition)
                 .map(_ + beamTimelines)
                 .getOrElse(beamTimelines)
             )
-            LineState(lineStateAcc.newBeamsPositions ++ newPositionWithTimeLine)
+            LineState(lineStateAcc.newBeamsPositionsWithTimelines ++ newPositionWithTimeLine)
         }
-        ResultState(lineState.newBeamsPositions)
+        ResultState(lineState.newBeamsPositionsWithTimelines)
       }
       .beamPositionsWithTimelines
       .values
