@@ -29,16 +29,18 @@ object Day8:
         case Array(x, y, z) => Coordinates(x, y, z)
     }
 
+    case class DistanceWithPair(distance: Double, pair: (Coordinates, Coordinates))
     val distancesWithPairs = coordinates
       .combinations(2)
-      .map { case first :: second :: Nil => first.distanceTo(second) -> (first, second) }
-      .toMap
+      .map { case first :: second :: Nil => DistanceWithPair(first.distanceTo(second), (first, second)) }
+      .toList
 
     case class ResultState(circuits: List[Set[Coordinates]])
-    distancesWithPairs.keys.toList.sorted
+    distancesWithPairs
+      .sortWith(_.distance < _.distance)
       .take(numOfConnectios)
-      .foldLeft(ResultState(List())) { case (resultAcc, distance) =>
-        val (a, b) = distancesWithPairs(distance)
+      .foldLeft(ResultState(List())) { case (resultAcc, distanceWithPair) =>
+        val (a, b) = distanceWithPair.pair
 
         case class DistanceState(notFoundCircuits: List[Set[Coordinates]], foundCircuits: List[Set[Coordinates]])
         val distanceState = resultAcc.circuits.foldLeft(DistanceState(List(), List())) { case (acc, circuit) =>
@@ -66,19 +68,20 @@ object Day8:
         case Array(x, y, z) => Coordinates(x, y, z)
     }
 
+    case class DistanceWithPair(distance: Double, pair: (Coordinates, Coordinates))
     val distancesWithPairs = coordinates
       .combinations(2)
-      .map { case first :: second :: Nil => first.distanceTo(second) -> (first, second) }
-      .toMap
+      .map { case first :: second :: Nil => DistanceWithPair(first.distanceTo(second), (first, second)) }
+      .toList
 
     val numOfCoordinates = coordinates.size
 
     @scala.annotation.tailrec
-    def findLastPairInFullCircuit(distancesLeft: List[Double], circuits: List[Set[Coordinates]]): (Coordinates, Coordinates) =
-      distancesLeft match
+    def findLastPairInFullCircuit(distancesWithPairsLeft: List[DistanceWithPair], circuits: List[Set[Coordinates]]): (Coordinates, Coordinates) =
+      distancesWithPairsLeft match
         case Nil => throw new Exception("not found")
         case head :: tail =>
-          val (a, b) = distancesWithPairs(head)
+          val (a, b) = head.pair
 
           case class DistanceState(notFoundCircuits: List[Set[Coordinates]], foundCircuits: List[Set[Coordinates]])
           val distanceState = circuits.foldLeft(DistanceState(List(), List())) { case (acc, circuit) =>
@@ -98,5 +101,5 @@ object Day8:
             else
               findLastPairInFullCircuit(tail, mergedCircuits +: distanceState.notFoundCircuits)
 
-    val pair = findLastPairInFullCircuit(distancesWithPairs.keys.toList.sorted, List())
+    val pair = findLastPairInFullCircuit(distancesWithPairs.sortWith(_.distance < _.distance), List())
     pair._1.x * pair._2.x
