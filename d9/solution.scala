@@ -21,7 +21,7 @@ object Day9:
     val coordinates = data.map(_.split(",")).map { case Array(x, y) => Coordinates(x.toLong, y.toLong) }
     val pairs = coordinates.combinations(2)
 
-    val squares = pairs.map { case a :: b :: Nil => Math.abs(a.x - b.x + 1) * Math.abs(a.y - b.y + 1) }.toList.sortWith(_ > _)
+    val squares = pairs.map { case a :: b :: Nil => (Math.abs(a.x - b.x) + 1) * (Math.abs(a.y - b.y) + 1) }.toList.sortWith(_ > _)
 
     squares.head
 
